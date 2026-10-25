@@ -1,0 +1,8 @@
+(function(){var f=document.getElementById("inq"),st=document.getElementById("st"),c=window.SITE_CONFIG||{};if(!f)return;
+function setErr(el,m){var p=el.closest(".fld"),e=p.querySelector(".err");if(m){if(!e){e=document.createElement("p");e.className="err";e.id=el.id+"-e";p.appendChild(e)}e.textContent=m;el.setAttribute("aria-invalid","true");el.setAttribute("aria-describedby",e.id)}else{if(e)e.remove();el.removeAttribute("aria-invalid")}}
+function ok(){var bad=null;f.querySelectorAll("[required]").forEach(function(el){var m="";if(el.type==="checkbox"?!el.checked:!el.value.trim())m="This field is required.";else if(el.type==="email"&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value))m="Enter a valid email address.";setErr(el,m);if(m&&!bad)bad=el});
+var u=document.getElementById("url");if(u.value&&!/^https?:\/\/.+\..+/.test(u.value)){setErr(u,"Enter a full URL starting with https://");bad=bad||u}else setErr(u,"");if(bad){bad.focus();return false}return true}
+f.addEventListener("submit",function(e){e.preventDefault();st.className="";if(!ok()){st.className="bad";st.textContent="Please fix the highlighted fields.";return}
+if(!c.formEndpoint){st.className="bad";st.textContent="This form is not connected yet, so nothing was sent. Set formEndpoint in js/config.js (see README).";return}
+var d={};new FormData(f).forEach(function(v,k){d[k]=v});st.textContent="Sending…";
+fetch(c.formEndpoint,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(d)}).then(function(r){if(!r.ok)throw 0;st.className="ok";st.textContent="Thanks. Your inquiry was sent.";f.reset()}).catch(function(){st.className="bad";st.textContent="Sorry, sending failed. Please try again later."})})})();
